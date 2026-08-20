@@ -39,23 +39,5 @@ _flutter.loader.load({
   config: { renderer: "canvaskit" },
   serviceWorkerSettings: {
     serviceWorkerVersion: "4054719075" /* Flutter's service worker is deprecated and will be removed in a future Flutter release. */
-  },
-  onEntrypointLoaded: async function(engineInitializer) {
-    console.log('FLUTTER_BOOT: onEntrypointLoaded called');
-    if (window.flutterCanvasKitLoaded) {
-      console.log('FLUTTER_BOOT: awaiting canvasKit');
-      await window.flutterCanvasKitLoaded;
-      console.log('FLUTTER_BOOT: canvasKit ready');
-    } else {
-      console.log('FLUTTER_BOOT: no canvasKit loader, proceeding');
-    }
-    try {
-      var appRunner = await engineInitializer.initializeEngine();
-      console.log('FLUTTER_BOOT: initializeEngine OK');
-      await appRunner.runApp();
-      console.log('FLUTTER_BOOT: runApp OK');
-    } catch (e) {
-      console.error('FLUTTER_BOOT: error', e);
-    }
   }
 });
