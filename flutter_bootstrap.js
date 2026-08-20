@@ -36,7 +36,13 @@ if (!window._flutter) {
 _flutter.buildConfig = {"engineRevision":"5a2a6a42cce67f965cf540fcecf616faca624aa1","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"},{}]};
 
 _flutter.loader.load({
+  config: { renderer: "canvaskit" },
   serviceWorkerSettings: {
     serviceWorkerVersion: "4054719075" /* Flutter's service worker is deprecated and will be removed in a future Flutter release. */
+  },
+  onEntrypointLoaded: async function(engineInitializer) {
+    if (window.flutterCanvasKitLoaded) await window.flutterCanvasKitLoaded;
+    var appRunner = await engineInitializer.initializeEngine();
+    await appRunner.runApp();
   }
 });
