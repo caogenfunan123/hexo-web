@@ -42,5 +42,158 @@
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
   <script src="flutter_bootstrap.js" async></script>
+
+  <!-- 交流群二维码：右下角悬浮按钮 + 弹出卡片（适配手机/电脑端） -->
+  <style>
+    #qr-fab {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #07c160;
+      border: none;
+      cursor: pointer;
+      z-index: 99999;
+      box-shadow: 0 4px 16px rgba(7, 193, 96, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+      padding: 0;
+    }
+    #qr-fab:hover {
+      transform: scale(1.08);
+    }
+    #qr-fab svg {
+      width: 30px;
+      height: 30px;
+      fill: #fff;
+      display: block;
+    }
+    #qr-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 99998;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #qr-overlay.open {
+      display: flex;
+    }
+    #qr-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px 20px 18px;
+      width: min(320px, 85vw);
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      position: relative;
+      animation: qr-pop 0.22s ease;
+    }
+    @keyframes qr-pop {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    #qr-card h3 {
+      margin: 0 0 14px;
+      font-size: 17px;
+      color: #222;
+      font-weight: 600;
+      padding-right: 20px;
+    }
+    #qr-card img {
+      width: 100%;
+      border-radius: 10px;
+      display: block;
+    }
+    #qr-card p {
+      margin: 12px 0 0;
+      font-size: 13px;
+      color: #888;
+      line-height: 1.5;
+    }
+    #qr-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #aaa;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    #qr-close:hover {
+      color: #555;
+    }
+    /* 电脑端：卡片贴近按钮，浮层不拦截页面 */
+    @media (min-width: 601px) {
+      #qr-overlay.open {
+        background: rgba(0, 0, 0, 0);
+        align-items: flex-end;
+        justify-content: flex-end;
+        pointer-events: none;
+      }
+      #qr-overlay.open #qr-card {
+        margin: 0 26px 92px 0;
+        pointer-events: auto;
+      }
+      #qr-card::after {
+        content: '';
+        position: absolute;
+        bottom: -14px;
+        right: 26px;
+        border: 7px solid transparent;
+        border-top-color: #fff;
+      }
+    }
+    /* 手机端：居中弹出 + 底部安全区 */
+    @media (max-width: 600px) {
+      #qr-fab {
+        right: 16px;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      }
+      #qr-card {
+        padding-bottom: 20px;
+      }
+    }
+  </style>
+  <button id="qr-fab" aria-label="加入交流群" title="加入交流群">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8.6 3.2C5 3.2 2.2 5.7 2.2 8.8c0 1.8 1 3.4 2.6 4.5l-.7 2.1 2.4-1.2c.7.2 1.4.3 2.1.3h.5c-.1-.4-.1-.8-.1-1.2 0-2.9 2.8-5.3 6.1-5.3h.4c-.6-3.1-3.7-5.3-7.5-5.3zM6 7.1c.6 0 1.1.5 1.1 1.1S6.6 9.3 6 9.3 4.9 8.8 4.9 8.2 5.4 7.1 6 7.1zm5.2 0c.6 0 1.1.5 1.1 1.1s-.5 1.1-1.1 1.1-1.1-.5-1.1-1.1.5-1.1 1.1-1.1z"/>
+      <path d="M21.8 14.3c0-2.6-2.5-4.7-5.5-4.7s-5.5 2.1-5.5 4.7 2.5 4.7 5.5 4.7c.6 0 1.2-.1 1.8-.3l2 1-.6-1.8c1.4-.9 2.3-2.3 2.3-3.6zm-7.4.6c-.5 0-.9-.4-.9-.9s.4-.9.9-.9.9.4.9.9-.4.9-.9.9zm3.8 0c-.5 0-.9-.4-.9-.9s.4-.9.9-.9.9.4.9.9-.4.9-.9.9z"/>
+    </svg>
+  </button>
+  <div id="qr-overlay">
+    <div id="qr-card">
+      <button id="qr-close" aria-label="关闭">&times;</button>
+      <h3>扫码加入交流群</h3>
+      <img src="assets/community-qr.jpg" alt="交流群二维码">
+      <p>微信扫一扫，加入拓墨交流群<br>分享写作技巧与使用反馈</p>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var fab = document.getElementById('qr-fab');
+      var overlay = document.getElementById('qr-overlay');
+      var close = document.getElementById('qr-close');
+      function openQr() { overlay.classList.add('open'); }
+      function closeQr() { overlay.classList.remove('open'); }
+      fab.addEventListener('click', openQr);
+      close.addEventListener('click', closeQr);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closeQr();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeQr();
+      });
+    })();
+  </script>
 </body>
 </html>
